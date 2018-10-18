@@ -34,7 +34,7 @@ To create a FrameBlade, you need to create 3 artifacts.
 
 1. Register the FrameBlade with your extension by creating a TypeScript class with the @FrameBlade decorator. The samples extension file for this is located at   `<dir>/Client/V2/Blades/FrameBlade/SampleFrameBlade.ts` and in the following example.
 
-{"gitdown": "include-section", "file":"../Samples/SamplesExtension/Extension/Client/V2/Blades/FrameBlade/SampleFrameBlade.ts", "section": "top-blades-frame#viewmodel"}
+{"gitdown": "include-section", "file":"../Samples/SamplesExtension/Extension/Client/V2/Blades/FrameBlade/SampleFrameBlade.ts", "section": "top-blades-frameblades#viewmodel"}
 
 2. Create an html page that will serve as the main contents of your iframe.  The samples extension file for this is located at `<dir>/Content/SamplesExtension/framebladepage.html` and in the following example.
 

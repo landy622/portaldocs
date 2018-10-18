@@ -41,89 +41,84 @@ import { DialogButtons } from "Fx/Composition/Dialog";
 import * as FrameBlade from "Fx/Composition/FrameBlade";
 import * as BladesArea from "../BladesArea";
 
-export = Main;
+import Toolbars = MsPortalFx.ViewModels.Toolbars;
+import Toolbar = Toolbars.Toolbar;
 
-module Main {
-    "use strict";
+function mockAsyncOperationToGetDataToSendToFrame() {
+    return Q.delay(2000).then(() => {
+        return {
+            title: ClientResources.sampleFrameBladeTitle,
+        };
+    });
+}
 
-    import Toolbars = MsPortalFx.ViewModels.Toolbars;
-    import Toolbar = Toolbars.Toolbar;
+//top-blades-frameblades#viewmodel
+/**
+ * View model for a FrameBlade.
+ */
+@FrameBlade.Decorator()
+@FrameBlade.InjectableModel.Decorator(BladesArea.DataContext)
+export class SampleFrameBlade {
+    public title = ClientResources.sampleFrameBladeTitle;
+    public subtitle: string;  // This FrameBlade doesn't make use of a subtitle.
 
-    function mockAsyncOperationToGetDataToSendToFrame() {
-        return Q.delay(2000).then(() => {
-            return {
-                title: ClientResources.sampleFrameBladeTitle,
-            };
+    public viewModel: FrameBlade.ViewModel;
+
+    public context: FrameBlade.Context<void, BladesArea.DataContext>;
+
+    public onInitialize() {
+        const { container } = this.context;
+
+        const viewModel = this.viewModel = new FrameBlade.ViewModel(container, {
+            src: MsPortalFx.Base.Resources.getContentUri("/Content/SamplesExtension/framebladepage.html"),
+        });
+
+        //top-blades-frameblades#viewmodel
+
+        // You can add command bars to FrameBlades.
+        const commandBar = new Toolbar(container);
+        commandBar.setItems([this._openLinkButton(), this._openDialogButton()]);
+        container.commandBar = commandBar;
+
+        // This is an example of how to listen for messages from your iframe.
+        viewModel.on("getAuthToken", () => {
+            // This is an example of how to post a message back to your iframe.
+            MsPortalFx.Base.Security.getAuthorizationToken().then((token) => {
+                const header = token.header;
+                viewModel.postMessage("getAuthTokenResponse", header);
+            });
+        });
+
+        return mockAsyncOperationToGetDataToSendToFrame().then(info => {
+            viewModel.postMessage("frametitle", info.title);
         });
     }
 
-//top-blades-frameblades#viewmodel
-    /**
-     * View model for a FrameBlade.
-     */
-    @FrameBlade.Decorator()
-    export class SampleFrameBlade {
-        public title = ClientResources.sampleFrameBladeTitle;
-        public subtitle: string;  // This FrameBlade doesn't make use of a subtitle.
+    private _openLinkButton(): Toolbars.OpenLinkButton {
+        const button = new Toolbars.OpenLinkButton("http://microsoft.com");
 
-        public viewModel: FrameBlade.ViewModel;
+        button.label(ClientResources.ToolbarButton.openLink);
+        button.icon(MsPortalFx.Base.Images.Hyperlink());
 
-        public context: FrameBlade.Context<void, BladesArea.DataContext>;
+        return button;
+    }
 
-        public onInitialize() {
-            const { container } = this.context;
-
-            const viewModel = this.viewModel = new FrameBlade.ViewModel(container, {
-                src: MsPortalFx.Base.Resources.getContentUri("/Content/SamplesExtension/framebladepage.html"),
-            });
-
-//top-blades-frameblades#viewmodel
-
-            // You can add command bars to FrameBlades.
-            const commandBar = new Toolbar(container);
-            commandBar.setItems([this._openLinkButton(), this._openDialogButton()]);
-            container.commandBar = commandBar;
-
-            // This is an example of how to listen for messages from your iframe.
-            viewModel.on("getAuthToken", () => {
-                // This is an example of how to post a message back to your iframe.
-                MsPortalFx.Base.Security.getAuthorizationToken().then((token) => {
-                    const header = token.header;
-                    viewModel.postMessage("getAuthTokenResponse", header);
-                });
-            });
-
-            return mockAsyncOperationToGetDataToSendToFrame().then(info => {
-                viewModel.postMessage("frametitle", info.title);
-            });
-        }
-
-        private _openLinkButton(): Toolbars.OpenLinkButton {
-            const button = new Toolbars.OpenLinkButton("http://microsoft.com");
-
-            button.label(ClientResources.ToolbarButton.openLink);
-            button.icon(MsPortalFx.Base.Images.Hyperlink());
-
-            return button;
-        }
-
-        private _openDialogButton(): Toolbars.CommandButton<void> {
-            const { container } = this.context;
-            return new Toolbars.CommandButton<void>({
-                label: "Open a dialog",
-                command: {
-                    canExecute: ko.observable(true),
-                    execute: () => {
-                        return container.openDialog({
-                            telemetryName: "FrameBladeDialog",
-                            title: ClientResources.sampleFrameBladeDialogTitle,
-                            content: ClientResources.sampleFrameBladeDialogContent,
-                            buttons: DialogButtons.Ok,
-                        });
-                    },
+    private _openDialogButton(): Toolbars.CommandButton<void> {
+        const { container } = this.context;
+        return new Toolbars.CommandButton<void>({
+            label: "Open a dialog",
+            command: {
+                canExecute: ko.observable(true),
+                execute: () => {
+                    return container.openDialog({
+                        telemetryName: "FrameBladeDialog",
+                        title: ClientResources.sampleFrameBladeDialogTitle,
+                        content: ClientResources.sampleFrameBladeDialogContent,
+                        buttons: DialogButtons.Ok,
+                    });
                 },
-            });
-        }
+            },
+        });
     }
 }
 

@@ -38,25 +38,26 @@ To create a FrameBlade, you need to create 3 artifacts.
 ```typescript
 
 /**
- * View model for a FrameBlade.
- */
+* View model for a FrameBlade.
+*/
 @FrameBlade.Decorator()
+@FrameBlade.InjectableModel.Decorator(BladesArea.DataContext)
 export class SampleFrameBlade {
-    public title = ClientResources.sampleFrameBladeTitle;
-    public subtitle: string;  // This FrameBlade doesn't make use of a subtitle.
+   public title = ClientResources.sampleFrameBladeTitle;
+   public subtitle: string;  // This FrameBlade doesn't make use of a subtitle.
 
-    public viewModel: FrameBlade.ViewModel;
+   public viewModel: FrameBlade.ViewModel;
 
-    public context: FrameBlade.Context<void, BladesArea.DataContext>;
+   public context: FrameBlade.Context<void, BladesArea.DataContext>;
 
-    public onInitialize() {
-        const { container } = this.context;
+   public onInitialize() {
+       const { container } = this.context;
 
-        const viewModel = this.viewModel = new FrameBlade.ViewModel(container, {
-            src: MsPortalFx.Base.Resources.getContentUri("/Content/SamplesExtension/framebladepage.html")
-        });
-			
+       const viewModel = this.viewModel = new FrameBlade.ViewModel(container, {
+           src: MsPortalFx.Base.Resources.getContentUri("/Content/SamplesExtension/framebladepage.html"),
+       });
 
+       
 ```
 
 2. Create an html page that will serve as the main contents of your iframe.  The samples extension file for this is located at `<dir>/Content/SamplesExtension/framebladepage.html` and in the following example.
